@@ -14,9 +14,19 @@ let cartItemCount = 0;
 // Init product element array
 const productElements = [];
 
+// Event listeners for filtering
+filtersContainer.addEventListener("change", filterProducts);
+searchInput.addEventListener("input", filterProducts);
+
 // Loop over products and create an element
 const products = await fetchJSON("./data.json");
 
+/**
+ * Description placeholder
+ *
+ * @param {*} product return an object
+ * @returns {HTMLElement} returns an HTML element
+ */
 function createProductElement(product) {
   const productElement = document.createElement("div");
   productElement.className = "space-y-2 item";
@@ -70,4 +80,31 @@ function updateCart(e) {
 
   // Update cart item count
   cartCount.innerText = cartItemCount.toString();
+}
+
+// Filter products by checkboxes and search input
+function filterProducts() {
+  // Get search term
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  // Get checked categored
+  const checkedCategories = Array.from(checkboxes)
+    .filter((check) => check.checked)
+    .map((check) => check.id);
+
+  // Loop over products and check for matches
+  productElements.forEach((productEl, index) => {
+    const product = products[index];
+
+    // Check to see if the product matches the search or the checked categories
+    const matchsSearchTerm = product.name.toLowerCase().includes(searchTerm);
+    const isInCheckedCategory =
+      checkedCategories.length === 0 || checkedCategories.includes(product.category);
+
+    // Show or hide products based on matches
+    if (matchsSearchTerm && isInCheckedCategory) {
+      productEl.classList.remove("hidden");
+    } else {
+      productEl.classList.add("hidden");
+    }
+  });
 }
